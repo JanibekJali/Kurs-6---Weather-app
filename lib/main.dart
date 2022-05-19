@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
             Text(
-              '8 \u00B0  ⛅',
+              '8 \u00B0 🌦',
               style: TextStyle(
                 fontSize: 100.0,
                 color: Colors.white,
