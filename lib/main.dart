@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_application/city_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,13 +16,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({
+  const MyHomePage({
     Key key,
   }) : super(key: key);
 
@@ -45,7 +46,14 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: const EdgeInsets.only(right: 30.0),
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: ((context) => CityPage()),
+                  ),
+                );
+              },
               icon: const Icon(
                 Icons.location_city,
                 size: 60.0,
@@ -58,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("images/weather.jpg"),
+            image: AssetImage("assets/images/weather.jpg"),
             fit: BoxFit.cover,
           ),
         ),
