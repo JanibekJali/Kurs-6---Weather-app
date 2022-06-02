@@ -1,6 +1,6 @@
 class WeatherUtils {
-  static int kelvinToCelcius(double kelvin) {
-    return (kelvin - 273.15).round();
+  static String kelvinToCelcius(double kelvin) {
+    return (kelvin - 273.15).round().toString();
   }
 
   static String getWeatherIcon(int kelvin) {
@@ -23,12 +23,12 @@ class WeatherUtils {
     }
   }
 
-  static String getDescription(int temp) {
-    if (temp > 25) {
+  static String getDescription(int kelvin) {
+    if (kelvin > 25) {
       return 'It\'s 🍦 time';
-    } else if (temp > 20) {
+    } else if (kelvin > 20) {
       return 'Time for shorts and 👕';
-    } else if (temp < 10) {
+    } else if (kelvin < 10) {
       return 'You\'ll need 🧣 and 🧤';
     } else {
       return 'Bring a 🧥 just in case';

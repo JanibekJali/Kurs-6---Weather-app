@@ -20,7 +20,8 @@ class _WeatherPageState extends State<WeatherPage> {
   String _celcius = '';
   String _icons;
   String _description = '';
-  String _cityName;
+  String _cityName = '';
+  bool _isLoading = false;
   @override
   void initState() {
     _showWeatherByLocation();
@@ -29,11 +30,11 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   Future<void> _showWeatherByLocation() async {
+    setState(() {
+      _isLoading = true;
+    });
     final position = await _getCurrentLocation();
     await getWetherByLocation(position: position);
-
-    // log('Position.latitude ==> ${position.latitude}');
-    // log('Position.logitude ==> ${position.longitude}');
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -64,33 +65,66 @@ class _WeatherPageState extends State<WeatherPage> {
   Future<void> getWetherByLocation({@required Position position}) async {
     final client = http.Client();
     try {
+      setState(() {
+        _isLoading = true;
+      });
       Uri uri = Uri.parse(
           'https://api.openweathermap.org/data/2.5/weather?lat=${position.latitude}&lon=${position.longitude}&appid=c3aa0301d9353c81b3f8e8254ca12e23');
-      // response -- joop --> bul peremennyi - saktoo uchun
       final response = await client.get(uri);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final body = response.body;
-        // log('API ===>> $body');
-        // data - bul maalymat saktap alip jatat --> peremennyi
         final _data = jsonDecode(body) as Map<String, dynamic>;
-        // ekinchi jolu
-        // final data2 = json.decode(response.body);
-        // log(' Data ===> $data');
-        // print(' Data ===> $_data');
-        // int, double , num
-        final _kelvin = _data['main']['temp'] as num;
+
+        final kelvin = _data['main']['temp'] as num;
 
         _cityName = _data['name'];
-        // log('temp ==> $_temp');
-        log('_data ==> $_cityName');
-        // 0K − 273.15
-        _celcius = WeatherUtils.kelvinToCelcius(_kelvin).toString();
+        _celcius = WeatherUtils.kelvinToCelcius(kelvin).toString();
         _description = WeatherUtils.getDescription(int.parse(_celcius));
-        _icons = WeatherUtils.getWeatherIcon(_kelvin.toInt());
+        _icons = WeatherUtils.getWeatherIcon(kelvin.toInt());
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
       throw Exception(e);
+    }
+  }
+
+  Future<void> _getWeatherByCityName(String typedCityName) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final client = http.Client();
+
+      final url =
+          'https://api.openweathermap.org/data/2.5/weather?q=$typedCityName&appid=c3aa0301d9353c81b3f8e8254ca12e23 ';
+      Uri uri = Uri.parse(url);
+      final response = await client.get(uri);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = response.body;
+        log('body ===> $body');
+        final _data = jsonDecode(body) as Map<String, dynamic>;
+        final kelvin = _data['main']['temp'] as num;
+        _cityName = _data['name'];
+
+        _celcius = WeatherUtils.kelvinToCelcius(kelvin);
+        _icons = WeatherUtils.getWeatherIcon(kelvin);
+        _description = WeatherUtils.getDescription(int.parse(_celcius));
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (katany) {
+      setState(() {
+        _isLoading = false;
+      });
+      throw Exception(katany);
     }
   }
 
@@ -109,13 +143,17 @@ class _WeatherPageState extends State<WeatherPage> {
           Padding(
             padding: const EdgeInsets.only(right: 30.0),
             child: IconButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                setState(() {});
+                final _typedCity = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: ((context) => CityPage()),
                   ),
                 );
+
+                log('typedCity -===> $_typedCity');
+                await _getWeatherByCityName(_typedCity.toString());
               },
               icon: const Icon(
                 Icons.location_city,
@@ -125,55 +163,61 @@ class _WeatherPageState extends State<WeatherPage> {
           ),
         ],
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/weather.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _celcius.isEmpty
-                  ? '$_celcius \u00B0 🌦'
-                  : '$_celcius  \u00B0 $_icons',
-              style: TextStyle(
-                fontSize: 100.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 35.0),
-              child: Text(
-                _description,
-                style: TextStyle(
-                  fontSize: 50.0,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+      body: Center(
+        child: _isLoading
+            ? CircularProgressIndicator(
+                backgroundColor: Colors.blue,
+                color: Colors.teal,
+              )
+            : Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/weather.jpg"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _celcius.isEmpty
+                          ? '$_celcius \u00B0 🌦'
+                          : '$_celcius  \u00B0 $_icons',
+                      style: TextStyle(
+                        fontSize: 100.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      _cityName,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 50.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25.0,
+                    ),
+                    Text(
+                      _description,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 60.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(
-              height: 25.0,
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10.0, right: 150.0),
-              child: Text(
-                _cityName ?? 'Shaardyn aty kelish kerek',
-                style: TextStyle(
-                  fontSize: 60.0,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
+// Junior -> Junior Strong
+// Middle  -> Middle Strong
+// Senior -> Senior Strong 

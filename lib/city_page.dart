@@ -57,6 +57,7 @@ class CityPage extends StatelessWidget {
               OutlinedButton(
                 onPressed: () {
                   FocusManager.instance.primaryFocus?.unfocus();
+                  Navigator.of(context).pop(_textEditingController.text);
                   log('_textEditingController ===> ${_textEditingController.text}');
                 },
                 style: ButtonStyle(

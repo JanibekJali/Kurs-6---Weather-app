@@ -1,10 +1,4 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
-import 'package:weather_application/city_page.dart';
-
 import 'weather_page.dart';
 
 void main() {
