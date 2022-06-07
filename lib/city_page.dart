@@ -7,6 +7,7 @@ class CityPage extends StatelessWidget {
   TextEditingController _textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final double screenSize = MediaQuery.of(context).size.height;
     return Scaffold(
       extendBodyBehindAppBar: true,
       // backgroundColor: ,
@@ -28,8 +29,8 @@ class CityPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 300,
+              SizedBox(
+                height: screenSize * 0.35,
               ),
               TextField(
                 controller: _textEditingController,
@@ -51,8 +52,8 @@ class CityPage extends StatelessWidget {
                   hintStyle: TextStyle(color: Colors.white),
                 ),
               ),
-              const SizedBox(
-                height: 25.0,
+              SizedBox(
+                height: screenSize * 0.05,
               ),
               OutlinedButton(
                 onPressed: () {

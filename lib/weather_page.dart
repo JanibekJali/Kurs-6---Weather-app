@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:weather_application/constants.dart';
 import 'package:weather_application/utils/weather_utils.dart';
 
 import 'city_page.dart';
@@ -69,7 +70,7 @@ class _WeatherPageState extends State<WeatherPage> {
         _isLoading = true;
       });
       Uri uri = Uri.parse(
-          'https://api.openweathermap.org/data/2.5/weather?lat=${position.latitude}&lon=${position.longitude}&appid=c3aa0301d9353c81b3f8e8254ca12e23');
+          '$baseUrl?lat=${position.latitude}&lon=${position.longitude}&appid=c3aa0301d9353c81b3f8e8254ca12e23');
       final response = await client.get(uri);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -81,7 +82,7 @@ class _WeatherPageState extends State<WeatherPage> {
         _cityName = _data['name'];
         _celcius = WeatherUtils.kelvinToCelcius(kelvin).toString();
         _description = WeatherUtils.getDescription(int.parse(_celcius));
-        _icons = WeatherUtils.getWeatherIcon(kelvin.toInt());
+        _icons = WeatherUtils.getWeatherIcon(kelvin);
         setState(() {
           _isLoading = false;
         });
@@ -102,13 +103,12 @@ class _WeatherPageState extends State<WeatherPage> {
     try {
       final client = http.Client();
 
-      final url =
-          'https://api.openweathermap.org/data/2.5/weather?q=$typedCityName&appid=c3aa0301d9353c81b3f8e8254ca12e23 ';
-      Uri uri = Uri.parse(url);
+      Uri uri = Uri.parse('$baseUrl?q=$typedCityName&appid=$ApiKey');
       final response = await client.get(uri);
       if (response.statusCode == 200 || response.statusCode == 201) {
         final body = response.body;
         log('body ===> $body');
+        // Worked untill this
         final _data = jsonDecode(body) as Map<String, dynamic>;
         final kelvin = _data['main']['temp'] as num;
         _cityName = _data['name'];
@@ -135,9 +135,12 @@ class _WeatherPageState extends State<WeatherPage> {
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: Colors.transparent,
-        leading: const Icon(
-          Icons.navigation,
-          size: 60.0,
+        leading: IconButton(
+          onPressed: null,
+          icon: const Icon(
+            Icons.navigation,
+            size: 60.0,
+          ),
         ),
         actions: [
           Padding(
@@ -153,7 +156,7 @@ class _WeatherPageState extends State<WeatherPage> {
                 );
 
                 log('typedCity -===> $_typedCity');
-                await _getWeatherByCityName(_typedCity.toString());
+                await _getWeatherByCityName(_typedCity).toString();
               },
               icon: const Icon(
                 Icons.location_city,
@@ -200,7 +203,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 25.0,
+                      height: MediaQuery.of(context).size.height * 0.01,
                     ),
                     Text(
                       _description,

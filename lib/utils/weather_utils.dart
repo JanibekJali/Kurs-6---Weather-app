@@ -3,7 +3,7 @@ class WeatherUtils {
     return (kelvin - 273.15).round().toString();
   }
 
-  static String getWeatherIcon(int kelvin) {
+  static String getWeatherIcon(double kelvin) {
     if (kelvin < 300) {
       return '☁';
     } else if (kelvin < 400) {
